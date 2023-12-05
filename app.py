@@ -49,14 +49,12 @@ class DigitRecognition:
         img = np.invert(np.array([img]))
         img = img / np.linalg.norm(img)
 
-        img[0] *= 3
+        img[0] *= 10
         img[0][img[0] > 1] = 1
-
 
         prediction = model.predict(img)
 
         self.label_result.config(text = f"It's probably a {np.argmax(prediction)}")
-
 
         
 if __name__ == "__main__":
