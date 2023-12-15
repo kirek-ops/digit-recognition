@@ -2,9 +2,15 @@ import tkinter as tk
 import tensorflow as tf
 import numpy as np
 import cv2
+import csv
 from PIL import Image, ImageDraw
 
 model = tf.keras.models.load_model('digits_recognition.model')
+
+data_path = 'feedback_data.csv'
+with open(data_path, 'w', newline = '') as csvfile:
+    csv_writer = csv.writer(csvfile)
+    csv_writer.writerow(['Image', 'Digit'])  
 
 class DigitRecognition:
     def __init__ (self, root):
@@ -38,6 +44,7 @@ class DigitRecognition:
         self.draw = ImageDraw.Draw(self.image)
 
         self.predicted_last_digit = None
+        self.new_image = None
 
     def paint(self, event):
         x1, y1 = (event.x - 1), (event.y - 1)
@@ -62,8 +69,10 @@ class DigitRecognition:
         img = np.invert(np.array([img]))
         img = img / np.linalg.norm(img)
 
-        img[0] *= 10
+        img[0] *= 30
         img[0][img[0] > 1] = 1
+
+        self.new_image = np.array(img)
 
         prediction = model.predict(img)
 
@@ -80,8 +89,10 @@ class DigitRecognition:
             correct_digit = int(correct_digit_text)
             if correct_digit != self.predicted_last_digit:
                 self.label_feedback.config(text = "Thanks for feedback") 
-
-
+                with open(data_path, 'a', newline = '') as csvfile:
+                    csv_writer = csv.writer(csvfile)
+                    csv_writer.writerow(((self.new_image).tolist(), correct_digit))  
+                
 
 if __name__ == "__main__":
     root = tk.Tk()
